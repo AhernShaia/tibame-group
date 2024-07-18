@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇元素</title>
+</head>
+<body>
+    <h1>選擇元素</h1>
+    <form action="/generate_story" method="post">
+        <div id="element-selection">
+            {% for category, items in elements.items() %}
+                <fieldset>
+                    <legend>{{ category }}</legend>
+                    {% for item in items %}
+                        <label>
+                            <input type="checkbox" name="{{ category }}" value="{{ item }}">
+                            {{ item }}
+                        </label><br>
+                    {% endfor %}
+                </fieldset>
+            {% endfor %}
+        </div>
+        <button type="submit" class="btn">生成故事和提示语</button>
+    </form>
+</body>
+</html>

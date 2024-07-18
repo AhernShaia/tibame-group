@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>童話魔方</title>
+    <!-- 引入Font Awesome字體圖標 -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        background: linear-gradient(
+          to right,
+          #daf6f9,
+          #83c6c4
+        ); /* 設置漸層背景 */
+      }
+      .outer-container {
+        margin-top: 20px; /* 調整這個值以增加或減少頂部距離 */
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+      .container {
+        display: flex;
+        width: 80%;
+        max-width: 100%;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px; /* 添加圓角 */
+        overflow: hidden; /* 確保圓角效果 */
+      }
+      .sidebar {
+        width: 200px;
+        background-color: #ffffff;
+        padding: 20px;
+        flex-shrink: 0;
+        margin-top: 20px; /* 添加頂部距離 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .sidebar img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 20px; /* 調整Logo底部距離 */
+      }
+      .sidebar button {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 30px; /* 增加按鈕之間的間距 */
+        background-color: #ffffff;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        transition: 0.3s;
+        border-radius: 10px; /* 按鈕圓角 */
+        font-size: 20px; /* 增加字體大小 */
+      }
+      .sidebar button i {
+        margin-right: 10px;
+      }
+      .sidebar button:hover {
+        background-color: #ccc;
+      }
+      .sidebar button.active {
+        background: linear-gradient(to right, #0d7ea0, #32bdc2);
+        color: white;
+      }
+      .main-content {
+        flex: 1;
+        padding: 40px;
+        overflow-y: auto;
+        height: calc(100vh - 40px); /* 設置固定高度 */
+      }
+      .banner {
+        width: 100%;
+        background-color: #ffffff;
+        color: rgb(0, 0, 0);
+        text-align: center;
+        padding: 20px;
+        font-size: 2em;
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+      .tabcontent {
+        display: none;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 80%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .form-group .inline-select {
+        display: inline-block;
+        width: auto;
+        min-width: 100px; /* 設置一個最小寬度以確保可讀性 */
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .btn {
+        display: inline-block;
+        background: linear-gradient(to right, #0d7ea0, #32bdc2);
+        color: #fff;
+        padding: 10px 20px;
+        margin-top: 20px;
+        border: none;
+        cursor: pointer;
+        border-radius: 25px; /* 圓角形狀 */
+        transition: background 0.3s;
+      }
+      .btn:hover {
+        background: linear-gradient(to right, #42aae2, #52dbdb);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .progress {
+        height: 20px;
+        background: #e0e0e0;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+      .progress-bar {
+        height: 100%;
+        background: #401eca;
+        width: 0;
+        transition: width 0.5s ease-in-out;
+      }
+      .image-preview {
+        background: #f0f0f0;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+      }
+      .project-item {
+        background: #f9f9f9;
+        padding: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+          width: 100%;
+        }
+        .sidebar {
+          width: 100%;
+          order: -1;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="outer-container">
+      <div class="container">
+        <div class="sidebar">
+          <img src="logo.png" alt="童話魔方 Logo" />
+          <!-- 替換為你的Logo圖片URL -->
+          <button class="tablinks" onclick="openTab(event, 'TextGeneration')">
+            <i class="fas fa-pencil-alt"></i> 文本生成
+          </button>
+          <button class="tablinks" onclick="openTab(event, 'ImageGeneration')">
+            <i class="fas fa-image"></i> 圖片生成
+          </button>
+          <button class="tablinks" onclick="openTab(event, 'VideoGeneration')">
+            <i class="fas fa-video"></i> 影音生成
+          </button>
+          <button class="tablinks" onclick="openTab(event, 'ProjectAccess')">
+            <i class="fas fa-folder-open"></i> 專案存取
+          </button>
+        </div>
+
+        <div class="main-content">
+          <div id="banner" class="banner">童話魔方</div>
+
+          <div id="TextGeneration" class="tabcontent">
+            <form id="storyGenerationForm">
+              <!-- <form action="textGeneration" method="post"> -->
+              <div class="form-group">
+                <label for="marketingTopic">行銷主題</label>
+                <input
+                  type="text"
+                  id="marketingTopic"
+                  name="marketingTopic"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="fairyTale">童話故事</label>
+                <select id="fairyTale" name="fairyTale" class="inline-select">
+                  <option value="">選擇童話故事</option>
+                  <!-- 在這裡添加更多選項 -->
+                  <option value="cinderella">灰姑娘</option>
+                  <option value="snowWhite">白雪公主</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="marketingStrategy">行銷策略</label>
+                <select
+                  id="marketingStrategy"
+                  name="marketingStrategy"
+                  class="inline-select"
+                >
+                  <option value="">選擇行銷策略</option>
+                  <!-- 在這裡添加更多選項 -->
+                </select>
+              </div>
+              <div class="grid">
+                <div class="form-group">
+                  <label for="character">人物</label>
+                  <select id="character" name="character" class="inline-select">
+                    <option value="">選擇人物</option>
+                    <!-- 在這裡添加更多選項 -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="scene">場景</label>
+                  <select id="scene" name="scene" class="inline-select">
+                    <option value="">選擇場景</option>
+                    <!-- 在這裡添加更多選項 -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="situation">情境</label>
+                  <select id="situation" name="situation" class="inline-select">
+                    <option value="">選擇情境</option>
+                    <!-- 在這裡添加更多選項 -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="style">風格</label>
+                  <select id="style" name="style" class="inline-select">
+                    <option value="">選擇風格</option>
+                    <!-- 在這裡添加更多選項 -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="strategy">策略方案</label>
+                  <select id="strategy" name="strategy" class="inline-select">
+                    <option value="">選擇策略方案</option>
+                    <!-- 在這裡添加更多選項 -->
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="execution">執行方法</label>
+                  <select id="execution" name="execution" class="inline-select">
+                    <option value="">選擇執行方法</option>
+                    <!-- 在這裡添加更多選項 -->
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn">生成確認</button>
+            </form>
+          </div>
+
+          <div id="ImageGeneration" class="tabcontent">
+            <form action="imageGeneration" method="post">
+              <div class="grid">
+                <div class="form-group">
+                  <label for="imagePrompt1">圖片提示語 1</label>
+                  <textarea
+                    id="imagePrompt1"
+                    name="imagePrompt1"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="imageScript1">圖片腳本 1</label>
+                  <textarea
+                    id="imageScript1"
+                    name="imageScript1"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="imagePrompt2">圖片提示語 2</label>
+                  <textarea
+                    id="imagePrompt2"
+                    name="imagePrompt2"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="imageScript2">圖片腳本 2</label>
+                  <textarea
+                    id="imageScript2"
+                    name="imageScript2"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="imagePrompt3">圖片提示語 3</label>
+                  <textarea
+                    id="imagePrompt3"
+                    name="imagePrompt3"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="imageScript3">圖片腳本 3</label>
+                  <textarea
+                    id="imageScript3"
+                    name="imageScript3"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="imagePrompt4">圖片提示語 4</label>
+                  <textarea
+                    id="imagePrompt4"
+                    name="imagePrompt4"
+                    rows="3"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="imageScript4">圖片腳本 4</label>
+                  <textarea
+                    id="imageScript4"
+                    name="imageScript4"
+                    rows="3"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" id="imageProgressBar"></div>
+              </div>
+              <button type="submit" class="btn">圖片生成確認</button>
+            </form>
+          </div>
+
+          <div id="VideoGeneration" class="tabcontent">
+            <div class="grid">
+              <div class="image-preview">圖片 1</div>
+              <div class="image-preview">圖片 2</div>
+              <div class="image-preview">圖片 3</div>
+              <div class="image-preview">圖片 4</div>
+            </div>
+            <form action="videoGeneration" method="post">
+              <div class="form-group">
+                <label for="voiceActor">配音員</label>
+                <select id="voiceActor" name="voiceActor" class="inline-select">
+                  <option value="">選擇配音員</option>
+                  <!-- 在這裡添加更多選項 -->
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="backgroundMusic">背景音樂</label>
+                <select
+                  id="backgroundMusic"
+                  name="backgroundMusic"
+                  class="inline-select"
+                >
+                  <option value="">選擇背景音樂</option>
+                  <!-- 在這裡添加更多選項 -->
+                </select>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" id="videoProgressBar"></div>
+              </div>
+              <button type="submit" class="btn">影片生成確認</button>
+            </form>
+          </div>
+
+          <div id="ProjectAccess" class="tabcontent">
+            <div id="projectList">
+              <!-- 專案列表將在這裡動態生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+          tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+          tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+
+        // 更新Banner文字
+        var bannerText;
+        switch (tabName) {
+          case "TextGeneration":
+            bannerText = "文本生成";
+            break;
+          case "ImageGeneration":
+            bannerText = "圖片生成";
+            break;
+          case "VideoGeneration":
+            bannerText = "影音生成";
+            break;
+          case "ProjectAccess":
+            bannerText = "專案存取";
+            break;
+          default:
+            bannerText = "童話魔方";
+        }
+        document.getElementById("banner").innerText = bannerText;
+      }
+
+      // 模擬進度條更新
+      function updateProgress(progressBar, progress) {
+        progressBar.style.width = progress + "%";
+      }
+
+      // 模擬專案列表加載
+      function loadProjects() {
+        var projectList = document.getElementById("projectList");
+        var projects = [
+          { id: 1, name: "專案 1" },
+          { id: 2, name: "專案 2" },
+          { id: 3, name: "專案 3" },
+        ];
+        projectList.innerHTML = "";
+        projects.forEach(function (project) {
+          var projectItem = document.createElement("div");
+          projectItem.className = "project-item";
+          projectItem.innerHTML =
+            "<span>" +
+            project.name +
+            '</span><button class="btn" onclick="playProject(' +
+            project.id +
+            ')">播放</button>';
+          projectList.appendChild(projectItem);
+        });
+      }
+
+      function playProject(id) {
+        alert("播放專案 " + id);
+      }
+
+      // 頁面加載時打開第一個標籤
+      document.getElementsByClassName("tablinks")[0].click();
+      loadProjects();
+
+      // 監聽表單提交事件, 故事生成
+      document
+        .getElementById("storyGenerationForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const formData = {
+            marketingTopic: document.getElementById("marketingTopic").value,
+            fairyTale: document.getElementById("fairyTale").value,
+            marketingStrategy:
+              document.getElementById("marketingStrategy").value,
+            character: document.getElementById("character").value,
+            scene: document.getElementById("scene").value,
+            situation: document.getElementById("situation").value,
+            style: document.getElementById("style").value,
+            strategy: document.getElementById("strategy").value,
+            execution: document.getElementById("execution").value,
+          };
+
+          fetch("/generate_story", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              // 處理返回的故事內容
+              alert("故事生成成功：\n" + data.story);
+              // 這裡您可以添加更多邏輯來展示生成的故事
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("生成故事時發生錯誤，請稍後再試。");
+            });
+        });
+    </script>
+  </body>
+</html>
